@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Schedule</title>
+
+    <link rel="stylesheet" type="text/css" href="schedule.css">
+
+    <script src="form_fns.js"></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+    <script>
+
+$(function() {
+    $('#date').ajaxForm({
+    type: "post",
+    url: "/~choppe1/cgi-bin/fill_sched.py",
+    data: $(this).serialize(),
+    success: function(result) {
+        $("#schedule").html(result); }
+        //alert('form successfully submitted'); }
+    });
+
+});
+</script>
+
+</head>
+<body>
+
+<form id='date' action="" method="post">
+    Select Date:&nbsp;
+        <select name="month">
+        </select>
+        &nbsp;&nbsp;
+        <select name="day">
+        </select>
+    <script>numList('day',31,'date');monthList('date');</script>
+    <input type="submit" id="reqSubmit" value="View Possible Schedules">
+
+</form>
+<div id="schedule"></div>
+
+</body></html>

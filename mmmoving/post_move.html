@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request A Move</title>
+
+    <link rel="stylesheet" type="text/css" href="basic.css">
+
+    <script src="form_fns.js"></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+
+    <script>
+$(function() {
+    $('#req').ajaxForm({
+    type: "post",
+    url: "/~choppe1/cgi-bin/post_move_handler.py",
+    data: $(this).serialize(),
+    success: function(result) {
+        $("#errs").html(result);}
+        //alert('form successfully submitted'); }
+    });
+    
+});
+</script>
+
+</head>
+<body>
+
+<form id='post_move' action="" method="post">  
+    Client Name:&nbsp; <input type="text" name="client_name"><br>
+    Date:&nbsp;
+        <select name="month">
+        </select>
+        &nbsp;&nbsp;
+        <select name="day">
+        </select> 
+    <script>numList('day',31, 'req');monthList('req');</script>
+    <br>
+    Time Taken (hrs):&nbsp; <select name='estim_time'></select><br>
+    <script>numList('estim_time',10, 'req')</script>
+    Comments:&nbsp; <textarea rows="20" cols="40" name="comments"></textarea><br><br><br>
+
+    <div id='errs'></div>
+    <input type="submit" id="post_submit" value="Finish Job">
+</form>
+
+
+</body>
+</html>

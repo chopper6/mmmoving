@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request A Move</title>
+
+    <link rel="stylesheet" type="text/css" href="basic.css">
+
+    <script src="form_fns.js"></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+
+    <script>
+$(function() {
+    $('#req').ajaxForm({
+    type: "post",
+    url: "/~choppe1/cgi-bin/req_handler.py",
+    data: $(this).serialize(),
+    success: function(result) {
+        $("#errs").html(result);}
+        //alert('form successfully submitted'); }
+    });
+    
+});
+</script>
+
+</head>
+<body>
+
+<form id='req' action="" method="post">  
+    Client Name:&nbsp; <input type="text" name="client_name"><br>
+    Date:&nbsp;
+        <select name="month">
+        </select>
+        &nbsp;&nbsp;
+        <select name="day">
+        </select> 
+    <script>numList('day',31, 'req');monthList('req');</script>
+
+    &nbsp;&nbsp;&nbsp;
+    Multiple Days:&nbsp; <select name='flex_days'>
+        <option value = '0'> exact day </option>
+        <option value = '1'> &plusmn;1 day </option> 
+        <option value = '2'> &plusmn;2 days </option>
+        <option value = '3'> &plusmn;3 days </option>
+        <option value = '4'> &plusmn;4 days </option>
+        <option value = '5'> &plusmn;5 days </option>
+    </select><br>
+    Requested Time Window: &nbsp; <select name="time_window">
+        <option value = 'any'> any </option>
+        <option value = '8-12'> 8am-12pm </option>
+        <option value = '12-16'> 12pm-4pm </option>
+        <option value = '16-20'> 4pm-8pm </option>
+    </select><br>  
+    From Address: &nbsp;<input type="text" name="from_address"><br>
+    To Address: &nbsp;<input type="text" name="to_address"><br>
+    <font size="2">Try and overestimate to leave time for setbacks.</font><br>
+    Estimated Time (hrs):&nbsp; <select name='estim_time'></select><br>
+    <script>numList('estim_time',10, 'req')</script>
+    Phone Number:&nbsp; <input type="text" name="phone" maxlength="10"><br>
+    Email (optional):&nbsp; <input type="text" name="email"><br>
+
+    <br><u>More Info for Better Estimations:</u><br><br>
+    Number of People:&nbsp;  <select name='num_ppl'></select><br>
+    <script>numList('num_ppl',8, 'req')</script>
+    Number of Rooms: &nbsp; <select name='num_rooms'></select><br>
+    <script>numList('num_rooms',10, 'req')</script>
+    Elevator:&nbsp; <select name='elevator'>
+        <option value = 'none'> &nbsp; </option>
+        <option value = 'true'> True </option>
+        <option value = 'false'> False </option>
+    </select><br>
+    Flights of Stairs:&nbsp; <select name='num_stairs'></select><br>
+    <script>numList('num_stairs',8, 'req')</script>
+    Additional Info:&nbsp; <textarea rows="20" cols="40" name="comments"></textarea><br><br><br>
+
+    <div id='errs'></div>
+    <input type="submit" id="reqSubmit" value="Request Job">
+</form>
+
+
+</body>
+</html>

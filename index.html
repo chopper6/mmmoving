@@ -1,0 +1,52 @@
+<!-- html input to javascript code to google chart -->
+<html>
+<head>
+
+<h1>Unu Clustering</h1><br><h3>Graphs demonstrate clustering algorithm. Replay links appear below each graph.</h3>
+<script src="globalVars.js"></script>
+<script src="clusterer.js"></script>
+<script src="time_serializer.js"></script>
+<script src="inputChoice.js"></script>
+<script src="bubbleGraph.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="basic.css">
+
+
+</head>
+
+<body>
+<h4>
+<table style="width:100%">
+	<tr><th>
+<form id="inputChoice">
+	<input type="checkbox" id="input1" value="dataset1"> Data Set 1<br> 
+        <input type="checkbox" id="input2" value="dataset2"> Data Set 2<br>
+        <input type="checkbox" id="input3" value="dataset3"> Data Set 3<br>
+        <input type="checkbox" id="input4" value="dataset4"> Data Set 4<br>
+        <input type="checkbox" id="input5" value="dataset5"> Data Set 5<br>
+        <input type="button" value="Graph" name="graph" onclick="bubbleGraph()" style="width:100px" /><br>
+</h4></form>
+	</th>
+	<th>
+<img src="legend.png" style="height:300px"></img>
+	</th></tr></table>
+
+<div id="chart_1"></div>
+<center><p id="link1"></p></center><br>
+
+<div id="chart_2" style="width: 900px; height: 500px;"></div>
+<center><p id="link2"></p></center><br>
+
+<div id="chart_3" style="width: 900px; height: 500px;"></div>
+<center><p id="link3"></p></center><br>
+
+<div id="chart_4" style="width: 900px; height: 500px;"></div>
+<center><p id="link4"></p></center><br>
+
+<div id="chart_5" style="width: 900px; height: 500px;"></div>
+<center><p id="link5"></p></center><br>
+
+</body>
+</html>
+
