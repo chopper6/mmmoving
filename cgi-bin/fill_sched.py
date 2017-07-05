@@ -22,32 +22,39 @@ def main():
     date = derive_date(fields) 
     date = '"' + str(date) + '"' 
     db, db_conn = connect_to_DB()
+    jobs = [] 
+    hours = [None for i in range(8,21)] # again ASSUMES 8-8 work days, same as range(0,13) i think
+    for row in db.execute('SELECT  id, poss_intervals FROM active_jobs WHERE date = ' + str(date)):
+        jobs.append(row)
+
+    num_scheds = 3
+    scheds = scheduler.build_multiple(jobs,hours,num_scheds)
+    for sched in scheds:
+        single_sched_table(sched, db)
+    print('<br><br><br>')
+
+def single_sched_table(sched, db):
     print('''
         <table border="0" cellspacing="50" align="center" style="font-size:1.25em;">
         <p class="sansserif">
-        <tr>''') 
-    jobs = [] 
-    hours = [None for i in range(8,21)] # again ASSUMES 8-8 work days, same as range(0,13) i think
+        <tr>''')
 
     #for ele in db.execute('PRAGMA table_info(active_jobs)'):
     #    print('<th>' + str(ele[1]) + '</th>')
     print('<th>Hour</th><th>Client Name <br>(click for details)</th></tr>')
-
-
     print("<br><br><br>")
-    for row in db.execute('SELECT  id, poss_intervals FROM active_jobs WHERE date = ' + str(date)):
-        jobs.append(row)
-    sched = scheduler.build(jobs, hours)
+
     client_names = [None for i in range(0,13)]
     details = [[] for i in range(0,13)]
     detail_titles = ['from_address', 'to_address', 'phone', 'email', 'num_ppl', 'num_rooms', 'num_stairs', 'elevator', 'comments'] #way to automate?
 
-    for i in range(0,13):
-        if (sched[i] != None):
-            for row in db.execute('SELECT client_name, from_address, to_address, phone, email, num_ppl, num_rooms, num_stairs, elevator FROM active_jobs WHERE id = ' + str(sched[i])):
-                client_names[i] = row[0]
-                details[i] = row[1:]
-        #else: client_names[i] = ' '
+    if (sched):
+        for i in range(0,13):
+            if (sched[i] or sched[i]==0):
+                for row in db.execute('SELECT client_name, from_address, to_address, phone, email, num_ppl, num_rooms, num_stairs, elevator FROM active_jobs WHERE id = ' + str(sched[i])):
+                    client_names[i] = row[0]
+                    details[i] = row[1:]
+            #else: client_names[i] = ' '
 
     start_hour = 8
     for i in range(len(client_names)):
@@ -57,6 +64,7 @@ def main():
         print('</td></tr>')
     print('</table>')
     collapsible_js()
+
 
 def check_form_integrity(fields):
     err = 0

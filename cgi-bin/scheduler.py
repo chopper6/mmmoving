@@ -1,4 +1,16 @@
 #!/usr/bin/python
+import random as rd
+
+def build_multiple (jobs, hours, num_build):
+    #builds with jobs in diff order
+    scheds = []
+    for i in range(num_build):
+        hours_copy = hours[:]
+        scheds.append(build(jobs, hours_copy))
+        rd.shuffle(jobs) #some form of reordering
+    return scheds
+
+
 
 def build (jobs, hours):
     # assumes jobs are sorted by min number of poss intervals
@@ -6,8 +18,6 @@ def build (jobs, hours):
     # each job should have a list of poss intervals
     if not jobs: return hours #base case, hours is the schedule
     #print("<br><br>sched_exists(): jobs[0][1] = " + str(jobs[0][1]) + ". <br><br>")
-
-
     hour0 = 8
     intervals = str_intervals_to_list(jobs[0][1])
     job_id = int(jobs[0][0])
@@ -16,14 +26,19 @@ def build (jobs, hours):
         start, stop = int(start), int(stop)
         free = True
         for i in range(start-hour0,stop-hour0): #CHECK off-by-one err
-            if (hours[i] != None): free = False
+            if ((hours[i]) != None): 
+                free = False
         if (free):
             hours2 = hours
             for i in range(start-hour0,stop-hour0): #CHECK off-by-one err
                 hours2[i] = job_id
-            sched = build(jobs[1:], hours2)
+            if (jobs[1:]): 
+                hours = build(jobs[1:], hours2)
+                return hours
 
-            if (sched): return sched 
+            else:
+                return hours2 
+
     return False
 
 
