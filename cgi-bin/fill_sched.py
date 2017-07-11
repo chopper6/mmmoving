@@ -22,16 +22,50 @@ def main():
     date = derive_date(fields) 
     date = '"' + str(date) + '"' 
     db, db_conn = connect_to_DB()
-    jobs = [] 
-    hours = [None for i in range(8,21)] # again ASSUMES 8-8 work days, same as range(0,13) i think
-    for row in db.execute('SELECT  id, poss_intervals FROM active_jobs WHERE date = ' + str(date)):
-        jobs.append(row)
 
-    num_scheds = 3
-    scheds = scheduler.build_multiple(jobs,hours,num_scheds)
-    for sched in scheds:
-        single_sched_table(sched, db)
+    sched = None
+    j=0
+    for row in db.execute('SELECT job_schedule, worker_schedule FROM schedule WHERE date = ' + str(date)):
+        sched = row
+        j+=1
+    if (j > 1): print("<font color=red><b><br>Error multiple schedules found for given day.<br></b></font>")
+
+    if not sched:
+        jobs = [] 
+        hours = [None for i in range(8,21)] # again ASSUMES 8-8 work days, same as range(0,13) i think
+        for row in db.execute('SELECT  id, poss_intervals FROM active_jobs WHERE date = ' + str(date)):
+            jobs.append(row)
+
+        num_scheds = 1
+        scheds = scheduler.build_multiple(jobs,hours,num_scheds)
+        sched = scheds[0]
+    
+    single_sched_table(sched, db)
     print('<br><br><br>')
+    print('<div id="sched_holder">Helooooo</div>')
+    table_buttons()
+
+
+def table_buttons():
+    print('<br><br>')
+    generic_button('modify','Modify')
+    generic_button('shuffle','Shuffle')
+    generic_button('save','Save')
+    print('''<script>
+$( "#save" ).click(function() {
+   $.ajax({
+    url: "/~choppe1/cgi-bin/save_sched.py",
+    data: {
+        title : $("#sched_holder").attr('id')
+    }
+}).success(function(data, status, xhr) {
+    if (data)
+        alert(data);
+});
+
+});
+    </script>''')
+
 
 def single_sched_table(sched, db):
     print('''
@@ -41,30 +75,72 @@ def single_sched_table(sched, db):
 
     #for ele in db.execute('PRAGMA table_info(active_jobs)'):
     #    print('<th>' + str(ele[1]) + '</th>')
-    print('<th>Hour</th><th>Client Name <br>(click for details)</th></tr>')
+    print('<th>Hour</th> <th>Block Hour</th> <th>Worker</th> <th>Client Name <br>(click for details)</th> <th>Set Start Hour</th> <th>Set Worker</th> <th>Finish Job</th> <th>Cancel Job</th></tr>')
     print("<br><br><br>")
 
-    client_names = [None for i in range(0,13)]
-    details = [[] for i in range(0,13)]
+    num_slots = 13
+    workers = ['worker1','worker2', 'worker3'] #temp
+
+    client_names, poss_intervals = [None for i in range(num_slots)], [None for i in range(num_slots)]
+    details = [[] for i in range(num_slots)]
     detail_titles = ['from_address', 'to_address', 'phone', 'email', 'num_ppl', 'num_rooms', 'num_stairs', 'elevator', 'comments'] #way to automate?
 
     if (sched):
-        for i in range(0,13):
+        for i in range(num_slots):
             if (sched[i] or sched[i]==0):
-                for row in db.execute('SELECT client_name, from_address, to_address, phone, email, num_ppl, num_rooms, num_stairs, elevator FROM active_jobs WHERE id = ' + str(sched[i])):
+                for row in db.execute('SELECT client_name, poss_intervals, from_address, to_address, phone, email, num_ppl, num_rooms, num_stairs, elevator FROM active_jobs WHERE id = ' + str(sched[i])):
                     client_names[i] = row[0]
-                    details[i] = row[1:]
+                    poss_intervals[i] = scheduler.str_intervals_to_list(row[1])
+                    details[i] = row[2:]
             #else: client_names[i] = ' '
 
     start_hour = 8
     for i in range(len(client_names)):
-        print('<tr><td>' + str(i+start_hour) + '</td><td>')
-        if (client_names[i] != None): collapsible(client_names[i], details[i], detail_titles) 
-        else: print(' ')
-        print('</td></tr>')
+        print('<tr><td>' + str(i+start_hour) + '</td> <td> ')
+        generic_dropdown('blockWorkers_'+str(i), workers)
+        full = True
+        if (i>0): 
+            if (client_names[i] == client_names[i-1]): full = False
+        if (client_names[i] != None and full==True):
+            print('</td> <td> [Worker] </td> <td>')
+            collapsible(client_names[i], details[i], detail_titles) 
+            print('</td> <td>')
+            set_hr_choices(poss_intervals[i], i, 'set_hr')
+            print('</td> <td>')
+            generic_dropdown('setWorkers_' + str(i), workers)
+            print('</td> <td>')
+            generic_button('finish_'+str(i), 'Finish')
+            print('</td> <td>')
+            generic_button('finish_'+str(i), 'Cancel')
+            print('</td>')
+        elif (client_names[i] != None):
+            print('</td> <td> [Worker] </td> <td>')
+            print(str(client_names[i]) + '</td> <td></td><td></td><td></td><td></td>')
+        else: 
+            print('</td><td></td><td></td><td></td><td></td><td></td><td></td> ')
+        print('</tr>')
     print('</table>')
     collapsible_js()
 
+
+def set_hr_choices(poss_intervals, row, col):
+    print('<select id=' + str(row) + "_" + str(col) + '>')
+    print('<option value=none> </option>')
+    for intrv in poss_intervals: 
+        start, stop = intrv.split("-")
+        print('<option value=' + start + '>' + start + '</option>')
+    print('</select>')
+
+
+def generic_dropdown(idd, vals):
+    print('<select id=' + str(idd) + '>')
+    print('<option value=none> </option>')
+    for val in vals:
+        print('<option value=' + str(val) + '>' + str(val) + '</option>')
+    print('</select>') 
+
+def generic_button(idd, text):
+    print('<button type=button id=' + str(idd) + '>' + str(text) + '</button>')
 
 def check_form_integrity(fields):
     err = 0

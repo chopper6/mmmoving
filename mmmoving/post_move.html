@@ -12,7 +12,7 @@
 
     <script>
 $(function() {
-    $('#req').ajaxForm({
+    $('#post_move').ajaxForm({
     type: "post",
     url: "/~choppe1/cgi-bin/post_move_handler.py",
     data: $(this).serialize(),
@@ -35,10 +35,10 @@ $(function() {
         &nbsp;&nbsp;
         <select name="day">
         </select> 
-    <script>numList('day',31, 'req');monthList('req');</script>
+    <script>numList('day',31, 'post_move');monthList('post_move');</script>
     <br>
     Time Taken (hrs):&nbsp; <select name='actual_time'></select><br>
-    <script>numList('estim_time',10, 'req')</script>
+    <script>numList('actual_time',10, 'post_move')</script>
     Comments:&nbsp; <textarea rows="20" cols="40" name="post_comments"></textarea><br><br><br>
 
     <div id='errs'></div>

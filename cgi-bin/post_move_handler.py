@@ -16,7 +16,7 @@ def main():
 
     err = check_form_integrity(fields)
     if (err != 0):
-        print("<font color='red'><b><br>Error in form entry, job not scheduled.</font></b><br><br>")
+        print("<font color='red'><b><br>Error in form entry, job not finished.</font></b><br><br>")
         return
 
     date = add_date(fields)
@@ -24,11 +24,17 @@ def main():
 
     db, db_conn = connect_to_DB()
     jobs = []
-    for row in db.execute('SELECT * FROM active_jobs WHERE date = ' + str(date) + " and client_name = " + str(fields['client_name'])):
+
+    #for row in db.execute('SELECT * FROM active_jobs WHERE date = ' + str(date) + " and client_name = " + str(fields['client_name'])):
+    for row in db.execute('SELECT * FROM active_jobs WHERE date = ? and client_name = ?', [date, fields['client_name']]):
         jobs.append(row)
 
-    #TODO: handle if mult jobs
-    col_names = [description[0] for description in cursor.description]
+    if not jobs:
+        print("<font color='red'><b><br>Specified job not found.</font></b><br><br>")
+        return
+
+    #TODO: handle if mult jobs and if job DNE
+    #col_names = [description[0] for description in db.description] #TODO: wtf is this?
     sql_cols = ''
     first=True
     for name in col_names:
@@ -79,7 +85,7 @@ def check_form_integrity(fields):
     err = 0
 
     not_nulls = ['client_name']
-    not_nones = ['month', 'day']
+    not_nones = ['month', 'day', 'actual_time']
     
     for title in not_nulls:
         if (title not in fields.keys()):
